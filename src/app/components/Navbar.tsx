@@ -86,7 +86,7 @@ export default function Navbar() {
       {pathname !== '/about' && (
         <nav
           className={`fixed top-4 right-4 z-50 h-auto px-2 py-1.5 flex items-center justify-center rounded-full backdrop-blur-sm transition-all duration-300
-          max-sm:fixed max-sm:bottom-4 max-sm:top-auto max-sm:right-auto max-sm:left-1/2 max-sm:-translate-x-1/2 max-sm:h-fit ${
+          max-sm:fixed max-sm:bottom-4 max-sm:top-auto max-sm:inset-x-0 max-sm:mx-auto max-sm:w-fit max-sm:h-fit ${
             isDark ? 'bg-white/10 hover:bg-white/15' : 'bg-white/20 hover:bg-white/25'
           }`}
           style={{

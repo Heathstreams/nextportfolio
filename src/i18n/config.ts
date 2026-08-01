@@ -46,19 +46,10 @@ export function stripLocale(pathname: string): string {
 }
 
 /**
- * Picks a locale from an Accept-Language header.
- * Swedish wins unless the browser asks for something else without listing Swedish.
+ * Everyone lands on Swedish. Browser language is deliberately ignored — the
+ * audience is Swedish, and English is one click away on the language toggle.
+ * Only an explicit choice (the NEXT_LOCALE cookie) moves a visitor off Swedish.
  */
-export function negotiateLocale(acceptLanguage: string | null): Locale {
-  if (!acceptLanguage) return DEFAULT_LOCALE;
-
-  const tags = acceptLanguage
-    .split(",")
-    .map((part) => part.split(";")[0].trim().toLowerCase())
-    .filter(Boolean);
-
-  if (tags.length === 0) return DEFAULT_LOCALE;
-  if (tags.some((tag) => tag === "sv" || tag.startsWith("sv-"))) return "sv";
-
-  return "en";
+export function resolveLocale(storedLocale: string | undefined): Locale {
+  return isLocale(storedLocale) ? storedLocale : DEFAULT_LOCALE;
 }

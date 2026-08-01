@@ -35,9 +35,6 @@ export default function ContactSection() {
           <p className="text-base sm:text-lg text-foreground/60 max-w-2xl mx-auto px-4">
             {t.contact.intro}
           </p>
-          <p className="mt-6 sm:mt-8 mb-8 sm:mb-12 text-sm text-foreground/50 max-w-xl mx-auto px-4">
-            {t.contact.note}
-          </p>
         </div>
 
         <div className="space-y-6 sm:space-y-8">
@@ -64,7 +61,7 @@ export default function ContactSection() {
                   </p>
                 </div>
               </button>
-              <div className="flex  gap-2 sm:flex-shrink-0">
+              <div className="flex gap-2 min-w-0 sm:flex-shrink-0">
                 <button
                   onClick={handleEmailCopy}
                   className="p-3 rounded-full  sm:p-4 bg-teal-500/10 hover:bg-teal-500/20 transition-colors text-left flex-1 sm:flex-initial"
@@ -138,15 +135,18 @@ export default function ContactSection() {
                     <p className="text-xs sm:text-sm text-indigo-500 font-medium">{t.contact.resume.subtitle}</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                {/* Stacked until there is room for both labels side by side:
+                    the card is narrow in the 2-column grid and "Förhandsgranska"
+                    is far wider than "Preview". */}
+                <div className="flex flex-col lg:flex-row gap-2">
                   <a
                     href="/cv.pdf" 
                     download
-                    className="p-3 rounded-full sm:p-4 bg-indigo-500/10 hover:bg-indigo-500/20 transition-colors flex-1 text-left"
+                    className="p-3 rounded-full sm:p-4 bg-indigo-500/10 hover:bg-indigo-500/20 transition-colors flex-1 min-w-0 text-left"
                   >
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <Download className="w-4  sm:w-5 h-4 sm:h-5 text-indigo-500" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
-                      <p className="text-base sm:text-xl font-medium text-indigo-500">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                      <Download className="w-4 sm:w-5 h-4 sm:h-5 flex-shrink-0 text-indigo-500" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
+                      <p className="text-base sm:text-xl font-medium text-indigo-500 truncate">
                         {t.contact.resume.download}
                       </p>
                     </div>
@@ -154,16 +154,16 @@ export default function ContactSection() {
                   <a 
                     href="/cv.pdf" 
                     target="_blank"
-                    className="p-3 rounded-full  sm:p-4 bg-indigo-500/10 hover:bg-indigo-500/20 transition-colors flex-1 text-left"
+                    className="p-3 rounded-full  sm:p-4 bg-indigo-500/10 hover:bg-indigo-500/20 transition-colors flex-1 min-w-0 text-left"
                   >
-                    <div className="flex items-center justify-between gap-2 sm:gap-3">
-                      <div className="flex items-center gap-2 sm:gap-3">
-                        <Eye className="w-4 sm:w-5 h-4 sm:h-5 text-indigo-500" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
-                        <p className="text-base sm:text-xl font-medium text-indigo-500">
+                    <div className="flex items-center justify-between gap-2 sm:gap-3 min-w-0">
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <Eye className="w-4 sm:w-5 h-4 sm:h-5 flex-shrink-0 text-indigo-500" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
+                        <p className="text-base sm:text-xl font-medium text-indigo-500 truncate">
                           {t.contact.resume.preview}
                         </p>
                       </div>
-                      <ExternalLink className="w-3 sm:w-4 h-3 sm:h-4 text-indigo-500" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
+                      <ExternalLink className="w-3 sm:w-4 h-3 sm:h-4 flex-shrink-0 text-indigo-500" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
                     </div>
                   </a>
                 </div>

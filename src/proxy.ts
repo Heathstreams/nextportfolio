@@ -3,8 +3,7 @@ import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE,
   LOCALE_COOKIE_MAX_AGE,
-  isLocale,
-  negotiateLocale,
+  resolveLocale,
 } from "@i18n/config";
 
 /**
@@ -13,8 +12,8 @@ import {
  *     to the "/sv" segment, so existing URLs keep working.
  *   - English lives on "/en/...".
  *   - "/sv/..." redirects to the unprefixed canonical URL.
- *   - A visitor without a stored preference is sent to "/en" only when their
- *     browser asks for a language and Swedish is not among them.
+ *   - Every first-time visitor gets Swedish regardless of browser language;
+ *     only the language toggle (which sets NEXT_LOCALE) switches them to English.
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -36,10 +35,7 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
-  const stored = request.cookies.get(LOCALE_COOKIE)?.value;
-  const locale = isLocale(stored)
-    ? stored
-    : negotiateLocale(request.headers.get("accept-language"));
+  const locale = resolveLocale(request.cookies.get(LOCALE_COOKIE)?.value);
 
   const url = request.nextUrl.clone();
 

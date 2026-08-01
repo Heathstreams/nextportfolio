@@ -13,58 +13,46 @@ import type { Dictionary } from '@i18n/dictionaries/en';
 
 type ProjectKey = keyof Dictionary['projects']['items'];
 
-/** Language-neutral project data. Copy comes from the dictionaries. */
-interface ProjectMeta {
+/** A finished project that opens a detail view. Copy comes from the dictionaries. */
+interface ProjectEntry {
+  kind: 'project';
   id: number;
   key: ProjectKey;
   src: string;
   technologies: string[];
-  /** Placeholders have no shippable demo yet. */
-  wip?: boolean;
-  links: {
-    demo: string | null;
-    github: string | null;
-  };
+  demo: string;
 }
 
-type Project = ProjectMeta & Dictionary['projects']['items'][ProjectKey];
+/**
+ * A reserved slot in the gallery. Carries no copy, tech list or detail view —
+ * there is nothing built yet, so there is nothing to describe.
+ */
+interface PlaceholderEntry {
+  kind: 'placeholder';
+  id: number;
+  src: string;
+}
 
-const projectMeta: ProjectMeta[] = [
+type Entry = ProjectEntry | PlaceholderEntry;
+
+const entries: Entry[] = [
   {
+    kind: 'project',
     id: 1,
     key: 'pokedle',
     src: '/images/project1v3.png',
     technologies: ['Next.js', 'TypeScript', 'PostgreSQL', 'CSS', 'Neon DB'],
-    links: {
-      demo: 'https://pokedle.day',
-      github: null,
-    },
+    demo: 'https://pokedle.day',
   },
+  { kind: 'placeholder', id: 2, src: '/2.jpg' },
+  { kind: 'placeholder', id: 3, src: '/3.jpg' },
   {
-    id: 2,
-    key: 'placeholder2',
-    src: '/2.jpg',
-    technologies: ['Next.js', 'React', 'Stripe', 'Sanity CMS', 'Tailwind CSS'],
-    wip: true,
-    links: { demo: null, github: null },
-  },
-  {
-    id: 3,
-    key: 'placeholder3',
-    src: '/3.jpg',
-    technologies: ['React Native', 'Expo', 'Firebase', 'Redux', 'Styled Components'],
-    wip: true,
-    links: { demo: null, github: null },
-  },
-  {
+    kind: 'project',
     id: 4,
     key: 'halls',
     src: '/images/project4.png',
     technologies: ['Godot 4', 'Blender', 'Krita', 'Laigter', 'GDScript'],
-    links: {
-      demo: 'https://rezyn.itch.io/halls-of-despair',
-      github: null,
-    },
+    demo: 'https://rezyn.itch.io/halls-of-despair',
   },
 ];
 
@@ -161,11 +149,6 @@ export default function CaseStudies() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProject]);
 
-  const projects: Project[] = projectMeta.map((meta) => ({
-    ...meta,
-    ...t.projects.items[meta.key],
-  }));
-
   const isDark = mounted && resolvedTheme === 'dark';
 
   const handleProjectClick = (id: number, e: React.MouseEvent) => {
@@ -180,7 +163,7 @@ export default function CaseStudies() {
     // Set the selected project
     setSelectedProject(id);
 
-    const index = projects.findIndex(p => p.id === id);
+    const index = entries.findIndex(e => e.id === id);
     if (index === -1) return;
 
     const card = projectElements.current[index];
@@ -260,38 +243,43 @@ export default function CaseStudies() {
         
         // Function to animate height and container
         const animateHeightAndContainer = () => {
-          // Set height to auto to measure content
-          gsap.set(overlay, { overflow: 'visible', height: 'auto' });
-          
-          // Capture the height
-          overlayHeight = overlay.scrollHeight;
-          
-          // Reset to original height before animation
-          gsap.set(overlay, { height: cardRect.height });
-          
-          // Animate to the full height
-          gsap.to(overlay, {
-            height: overlayHeight + extraSpace,
-            duration: 0.5,
-            ease: "power3.out",
-            onComplete: () => {
-              gsap.set(overlay, { overflow: 'visible' });
-              
-              // Check if container needs to expand
-              if (containerRef.current) {
-                const totalExpandedHeight = cardRect.top + overlayHeight + extraSpace;
-                const containerBottom = containerRef.current.getBoundingClientRect().bottom;
-                
-                if (totalExpandedHeight > containerBottom) {
-                  gsap.to(containerRef.current, {
-                    paddingBottom: `${totalExpandedHeight - containerBottom + 60}px`,
-                    duration: 0.5,
-                    ease: "power3.out"
-                  });
+          // Measure the real content height. Written straight to the element:
+          // GSAP normalises "auto" on height into the *current* pixel value, so
+          // going through gsap.set here would just measure the collapsed card.
+          overlay.style.overflow = 'hidden';
+          overlay.style.height = 'auto';
+          overlayHeight = overlay.getBoundingClientRect().height;
+
+          // Animate from the card's size up to the measured height
+          gsap.fromTo(overlay,
+            { height: cardRect.height },
+            {
+              height: overlayHeight,
+              duration: 0.5,
+              ease: "power3.out",
+              onComplete: () => {
+                // Hand height back to the content, so a stale measurement can
+                // never clip the action buttons at the bottom of the card.
+                overlay.style.height = 'auto';
+                overlay.style.overflow = 'visible';
+
+                // Check if container needs to expand
+                if (containerRef.current) {
+                  const expandedHeight = overlay.getBoundingClientRect().height;
+                  const totalExpandedHeight = cardRect.top + expandedHeight + extraSpace;
+                  const containerBottom = containerRef.current.getBoundingClientRect().bottom;
+
+                  if (totalExpandedHeight > containerBottom) {
+                    gsap.to(containerRef.current, {
+                      paddingBottom: `${totalExpandedHeight - containerBottom + 60}px`,
+                      duration: 0.5,
+                      ease: "power3.out"
+                    });
+                  }
                 }
               }
             }
-          });
+          );
         };
         
         // Execute with a slight delay to ensure DOM is ready
@@ -349,41 +337,48 @@ export default function CaseStudies() {
     <section id="projects" ref={containerRef} className="relative bg-background py-12 lg:py-24 overflow-x-hidden">
       {/* Responsive Grid Container */}
       <div ref={gridRef} className="relative w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:px-2 gap-y-6 lg:gap-y-0">
-        {projects.map((project, index) => (
+        {entries.map((entry, index) => {
+          const isPlaceholder = entry.kind === 'placeholder';
+          const copy = isPlaceholder
+            ? t.projects.placeholder
+            : t.projects.items[entry.key];
+
+          return (
           <div
-            key={project.id}
+            key={entry.id}
             ref={(el) => setProjectRef(index, el)}
-            className="relative w-full group overflow-hidden cursor-pointer
-              h-[60vh] sm:h-[50vh] lg:h-[85vh] transition-opacity duration-700"
-            onClick={(e) => handleProjectClick(project.id, e)}
+            className={`relative w-full group overflow-hidden
+              h-[60vh] sm:h-[50vh] lg:h-[85vh] transition-opacity duration-700
+              ${isPlaceholder ? 'cursor-default' : 'cursor-pointer'}`}
+            onClick={isPlaceholder ? undefined : (e) => handleProjectClick(entry.id, e)}
+            aria-disabled={isPlaceholder || undefined}
           >
             {/* Frame with padding */}
             <div className={`h-full w-full py-3 px-1.5 lg:py-8 lg:px-1.5 bg-background box-border
               ${index === 0 ? 'lg:pl-0' : ''} 
-              ${index === projects.length - 1 ? 'lg:pr-0' : ''}`}
+              ${index === entries.length - 1 ? 'lg:pr-0' : ''}`}
             >
               {/* Image Container with overflow-hidden */}
               <div className="relative h-full w-full overflow-hidden">
                 <Image
-                  src={project.src}
-                  alt={project.title}
+                  src={entry.src}
+                  alt={isPlaceholder ? '' : copy.title}
+                  aria-hidden={isPlaceholder || undefined}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   className={`object-cover 
-                    transition-all duration-1000 ease-in-out 
-                    lg:group-hover:-translate-y-8 
-                    filter lg:group-hover:brightness-100 ${
-                      project.wip
-                        ? 'grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100'
-                        : 'saturate-60 group-hover:saturate-100'
-                    } ${
-                      isDark ? 'brightness-75 hover:brightness-90' : ''
+                    transition-all duration-1000 ease-in-out filter ${
+                      isPlaceholder
+                        ? 'grayscale opacity-40'
+                        : `saturate-60 group-hover:saturate-100 lg:group-hover:-translate-y-8 lg:group-hover:brightness-100 ${
+                            isDark ? 'brightness-75 hover:brightness-90' : ''
+                          }`
                     }`}
                   priority={index < 2}
                 />
 
-                {/* Placeholder / work-in-progress marker */}
-                {project.wip && (
+                {/* Reserved slot marker — nothing is claimed about the project itself */}
+                {isPlaceholder && (
                   <>
                     <div className="absolute inset-0 border-2 border-dashed border-amber-500/50 pointer-events-none" />
                     <span
@@ -402,30 +397,32 @@ export default function CaseStudies() {
             {/* Title Overlay - Always visible on mobile/tablet, hover on desktop */}
             <div
               className={`absolute bottom-0 left-0 w-full bg-background
-                lg:transform lg:translate-y-full lg:group-hover:translate-y-0 
-                transition-all duration-1000 z-3
-                sm:translate-y-0 ${
+                transition-all duration-1000 z-3 sm:translate-y-0 ${
+                  isPlaceholder ? '' : 'lg:transform lg:translate-y-full lg:group-hover:translate-y-0'
+                } ${
                   isDark ? 'backdrop-blur-md bg-background/90' : ''
                 }`}
             >
               <div className="px-3 py-3 sm:px-4 sm:py-4 lg:px-8 lg:py-6">
-                <h3 className={`text-xl sm:text-2xl lg:text-4xl font-black font-fixelDisplay mb-1 lg:mb-2 
-                  ${isDark ? 'text-foreground' : 'text-black'}`}>
-                  {project.title}
+                {/* opacity-* rather than text-foreground/50: Tailwind cannot apply an
+                    alpha modifier to the var(--foreground) colour, so it is a no-op. */}
+                <h3 className={`text-xl sm:text-2xl lg:text-4xl font-black font-fixelDisplay mb-1 lg:mb-2
+                  ${isDark ? 'text-foreground' : 'text-black'} ${isPlaceholder ? 'opacity-60' : ''}`}>
+                  {copy.title}
                 </h3>
                 <p className={`text-sm sm:text-base lg:text-lg font-fixelDisplay 
-                  lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500 delay-300
-                  opacity-100 ${
-                    project.wip
+                  transition-opacity duration-500 delay-300 opacity-100 ${
+                    isPlaceholder
                       ? isDark ? 'text-amber-400' : 'text-amber-600'
-                      : isDark ? 'text-foreground/70' : 'text-gray-600'
+                      : `lg:opacity-0 lg:group-hover:opacity-100 ${isDark ? 'text-foreground/70' : 'text-gray-600'}`
                   }`}>
-                  {project.description}
+                  {copy.description}
                 </p>
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
 
         {/* Expanded Project Overlay - Inside the grid container */}
         <div 
@@ -436,8 +433,9 @@ export default function CaseStudies() {
         >
           {selectedProject !== null ? (
             (() => {
-              const project = projects.find(p => p.id === selectedProject);
-              if (!project) return null;
+              const entry = entries.find(e => e.id === selectedProject);
+              if (!entry || entry.kind !== 'project') return null;
+              const project = { ...entry, ...t.projects.items[entry.key] };
               
               const colors = getProjectColor(project.id);
 
@@ -459,13 +457,6 @@ export default function CaseStudies() {
                               priority
                               className="object-cover object-center overlay-image"
                             />
-                            {project.wip && (
-                              <span className="absolute top-6 left-6 inline-flex items-center gap-2 px-3 py-1.5
-                                bg-amber-500 text-black text-xs font-semibold uppercase tracking-wide">
-                                <Construction className="w-4 h-4" aria-hidden="true" />
-                                {t.projects.wipBadge}
-                              </span>
-                            )}
                             <div className="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black/80 to-transparent">
                               <h1 className="text-4xl font-bold text-white mb-2">
                                 {project.title}
@@ -476,16 +467,13 @@ export default function CaseStudies() {
                         </div>
                       </div>
                       
-                      {/* Right column - Project details - using overflow:hidden */}
-                      <div className="col-span-7 p-8 py-12 h-full overflow-hidden">
+                      {/* Right column - Project details.
+                          Flex column so the actions stay pinned and reachable: the body
+                          scrolls instead of the panel clipping it on short screens. */}
+                      <div className="col-span-7 p-8 py-12 h-full min-h-0 flex flex-col">
+                        <div className="flex-1 min-h-0 overflow-y-auto pr-3">
                         {/* Description */}
                         <div className="mb-12">
-                          {project.wip && (
-                            <p className="flex items-start gap-3 mb-6 px-4 py-3 border-l-4 border-amber-500 bg-amber-500/10 text-base text-amber-600">
-                              <Construction className="w-5 h-5 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                              {t.projects.wipNotice}
-                            </p>
-                          )}
                           <p className="text-lg leading-relaxed">
                             {project.fullDescription}
                           </p>
@@ -520,33 +508,22 @@ export default function CaseStudies() {
                             ))}
                           </div>
                         </div>
-                        
-                        {/* Action buttons - View Demo and Close buttons */}
-                        <div className="flex gap-4">
-                          {project.links.demo ? (
-                            <a 
-                              href={project.links.demo}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={`px-6 py-4 flex-1 text-center bg-${colors.primary} text-white`}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <span className="flex items-center justify-center gap-2">
-                                <ExternalLink className="w-4 h-4" />
-                                {t.projects.viewDemo}
-                              </span>
-                            </a>
-                          ) : (
-                            <span
-                              className="px-6 py-4 flex-1 text-center border border-dashed border-amber-500/60 bg-amber-500/10 text-amber-600 cursor-not-allowed"
-                              aria-disabled="true"
-                            >
-                              <span className="flex items-center justify-center gap-2">
-                                <Construction className="w-4 h-4" />
-                                {t.projects.comingSoon}
-                              </span>
+                        </div>
+
+                        {/* Action buttons - pinned below the scrolling body */}
+                        <div className="flex gap-4 flex-shrink-0 pt-6">
+                          <a 
+                            href={project.demo}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`px-6 py-4 flex-1 text-center bg-${colors.primary} text-white`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <span className="flex items-center justify-center gap-2">
+                              <ExternalLink className="w-4 h-4" />
+                              {t.projects.viewDemo}
                             </span>
-                          )}
+                          </a>
                           <button 
                             className="px-6 py-4 flex-1 text-center border border-white/20 bg-white/5"
                             onClick={(e) => {
@@ -583,12 +560,6 @@ export default function CaseStudies() {
                           {project.title}
                         </span>
                       </h2>
-                      {project.wip && (
-                        <p className="flex items-start gap-2 mb-4 px-3 py-2.5 border-l-4 border-amber-500 bg-amber-500/10 text-sm text-amber-600 text-left">
-                          <Construction className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                          {t.projects.wipNotice}
-                        </p>
-                      )}
                       <p className="text-sm text-foreground/60 mb-6">
                         {project.fullDescription}
                       </p>
@@ -634,36 +605,21 @@ export default function CaseStudies() {
 
                       {/* Links */}
                       <div className="flex flex-wrap gap-3 justify-center">
-                        {project.links.demo ? (
-                          <a 
-                            href={project.links.demo}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`px-4 py-3  text-base font-medium flex items-center justify-center gap-2 flex-1
-                              ${
-                                selectedProject === 1 
-                                  ? 'bg-emerald-500 text-white' :
-                                selectedProject === 2 
-                                  ? 'bg-blue-500 text-white' :
-                                selectedProject === 3 
-                                  ? 'bg-indigo-500 text-white' :
-                                'bg-purple-500 text-white'
-                              }`}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                            {t.projects.viewProject}
-                          </a>
-                        ) : (
-                          <span
-                            className="px-4 py-3 text-base font-medium flex items-center justify-center gap-2 flex-1
-                              border border-dashed border-amber-500/60 bg-amber-500/10 text-amber-600 cursor-not-allowed"
-                            aria-disabled="true"
-                          >
-                            <Construction className="w-4 h-4" />
-                            {t.projects.comingSoon}
-                          </span>
-                        )}
+                        <a 
+                          href={project.demo}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`px-4 py-3  text-base font-medium flex items-center justify-center gap-2 flex-1
+                            ${
+                              selectedProject === 1 
+                                ? 'bg-emerald-500 text-white' :
+                              'bg-purple-500 text-white'
+                            }`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          {t.projects.viewProject}
+                        </a>
                         <button 
                           className="px-4 py-3 text-base font-medium flex items-center justify-center gap-2 flex-1 border border-white/20 bg-white/5"
                           onClick={(e) => {

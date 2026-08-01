@@ -157,6 +157,15 @@ export default function Footer() {
             </div>
           </div>
         </div>
+
+        {/* Colophon */}
+        <div className="border-t border-white/10 pt-8">
+          {/* pr keeps the last line clear of the round back-to-top button,
+              which sits in the bottom-right corner on small screens. */}
+          <p className="text-sm text-gray-400 max-w-2xl leading-relaxed pr-14 sm:pr-0">
+            {t.footer.colophon}
+          </p>
+        </div>
       </div>
 
       {/* Back to Top Button - Desktop */}

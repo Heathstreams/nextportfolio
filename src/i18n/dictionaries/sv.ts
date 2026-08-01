@@ -24,6 +24,8 @@ export const sv: Dictionary = {
     title: "Designer & Utvecklare",
     roleScreenReader: "Angular",
     role: "Utvecklare",
+    /** Spoken connector between role and company; the arrow is decorative. */
+    at: "på",
     company: "Biometria",
     portraitAlt: "Porträtt av Lukas Hedström",
   },
@@ -57,12 +59,13 @@ export const sv: Dictionary = {
 
   projects: {
     wipBadge: "Pågående arbete",
-    wipNotice:
-      "Platshållare — projektet är inte klart än, så texten nedan beskriver vad det är tänkt att bli.",
     viewDemo: "Visa demo",
     viewProject: "Visa projekt",
-    comingSoon: "Kommer snart",
     close: "Stäng",
+    placeholder: {
+      title: "Nytt projekt",
+      description: "På gång",
+    },
     items: {
       pokedle: {
         title: "Pokedle.day",
@@ -76,34 +79,6 @@ export const sv: Dictionary = {
           "Autocomplete-sökning med filtrerade förslag",
           "Daglig shiny-Pokémon baserad på seedad slumpgenerering",
           "Mobilanpassad design med fokus på tillgänglighet",
-        ],
-      },
-      placeholder2: {
-        title: "Projekt 2",
-        description: "Planerat — e-handelsplattform",
-        fullDescription:
-          "En planerad e-handelsplattform med produktkatalog, varukorg, säker kassa och användarkonton. Tanken är att integrera Stripe för betalningar och ett headless CMS för innehållet.",
-        features: [
-          "Produktkatalog med avancerad filtrering",
-          "Varukorg med sparat innehåll mellan besök",
-          "Säker kassa med Stripe-integration",
-          "Användarkonton och orderhistorik",
-          "Innehållshantering med Sanity CMS",
-          "Responsiv design för alla enheter",
-        ],
-      },
-      placeholder3: {
-        title: "Projekt 3",
-        description: "Planerat — mobile first-app",
-        fullDescription:
-          "En planerad mobile first-applikation med responsiv design som ska ge en bra upplevelse på alla enheter. Konceptet omfattar offlinestöd, push-notiser och appliknande interaktioner.",
-        features: [
-          "Fungerar på både iOS och Android",
-          "Offlinestöd med lokal datalagring",
-          "Push-notiser för att engagera användarna",
-          "Mjuka, appliknande övergångar och animationer",
-          "Responsiva layouter för alla skärmstorlekar",
-          "Integration med Firebase i backend",
         ],
       },
       halls: {
@@ -127,7 +102,6 @@ export const sv: Dictionary = {
     heading: "Hör av dig!",
     intro:
       "Oavsett om du har ett projekt på gång eller bara vill snacka teknik och design är jag alltid nyfiken på att träffa likasinnade.",
-    note: "Jag byggde den här sidan 2025 när jag sökte sommarjobb, examensarbete och en första heltidsroll. I dag arbetar jag som systemutvecklare på Biometria och använder Angular i frontend.",
     email: {
       title: "E-post",
       subtitle: "Direktkontakt",
@@ -158,6 +132,8 @@ export const sv: Dictionary = {
     builtWith: "Byggd med",
     connect: "Kontakt",
     backToTop: "Till toppen",
+    colophon:
+      "Jag byggde den här sidan 2025 när jag sökte sommarjobb, examensarbete och mitt första heltidsjobb.",
   },
 
   aboutPage: {

@@ -183,7 +183,9 @@ export default function AboutSection() {
                         <card.icon className="w-9 h-9 relative z-10" />
                       </div>
                       <div>
-                        <h3 className="text-2xl font-sans font-semibold">
+                        {/* Swedish compounds ("Frontendutvecklare") are single long
+                            words where the English is breakable — let them hyphenate. */}
+                        <h3 className="text-2xl font-sans font-semibold hyphens-auto break-words">
                           {card.title}
                         </h3>
                         <p className={`text-sm ${card.iconColor} font-medium`}>

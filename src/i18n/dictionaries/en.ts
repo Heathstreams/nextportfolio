@@ -28,6 +28,8 @@ export const en = {
     title: "Designer & Developer",
     roleScreenReader: "Angular",
     role: "SWE",
+    /** Spoken connector between role and company; the arrow is decorative. */
+    at: "at",
     company: "Biometria",
     portraitAlt: "Portrait of Lukas Hedström",
   },
@@ -61,12 +63,17 @@ export const en = {
 
   projects: {
     wipBadge: "Work in progress",
-    wipNotice:
-      "Placeholder — this project is still in progress, so the copy below describes what it is meant to become.",
     viewDemo: "View Demo",
     viewProject: "View Project",
-    comingSoon: "Coming soon",
     close: "Close",
+    /**
+     * Copy for the reserved gallery slots. Deliberately says nothing about what
+     * the project will be — there is nothing to show yet.
+     */
+    placeholder: {
+      title: "New project",
+      description: "In progress",
+    },
     items: {
       pokedle: {
         title: "Pokedle.day",
@@ -80,34 +87,6 @@ export const en = {
           "Autocomplete search with filtered suggestions",
           "Daily shiny Pokémon feature using seeded randomization",
           "Mobile-responsive design with accessibility features",
-        ],
-      },
-      placeholder2: {
-        title: "Project 2",
-        description: "Planned — e-commerce platform",
-        fullDescription:
-          "A planned e-commerce platform with product catalog, shopping cart, secure checkout, and user accounts. The idea is to integrate Stripe for payments and a headless CMS for content management.",
-        features: [
-          "Product catalog with advanced filtering",
-          "Shopping cart with persistent storage",
-          "Secure checkout with Stripe integration",
-          "User accounts and order history",
-          "Content management with Sanity CMS",
-          "Responsive design for all devices",
-        ],
-      },
-      placeholder3: {
-        title: "Project 3",
-        description: "Planned — mobile-first app",
-        fullDescription:
-          "A planned mobile-first application with responsive design that provides an optimal experience across devices. The concept covers offline support, push notifications, and app-like interactions.",
-        features: [
-          "Cross-platform compatibility (iOS & Android)",
-          "Offline support with local data storage",
-          "Push notifications for user engagement",
-          "Smooth app-like transitions and animations",
-          "Responsive layouts for all screen sizes",
-          "Integration with Firebase backend services",
         ],
       },
       halls: {
@@ -131,7 +110,6 @@ export const en = {
     heading: "Let's Connect!",
     intro:
       "Whether you have a project in mind or just want to chat about technology and design, I'm always excited to connect with like-minded individuals.",
-    note: "I built this site in 2025 while looking for a summer internship, a thesis project, and a full-time role. I now work at Biometria as a software developer and use Angular on the frontend.",
     email: {
       title: "Email",
       subtitle: "Direct communication",
@@ -162,6 +140,9 @@ export const en = {
     builtWith: "Built With",
     connect: "Connect",
     backToTop: "Back to Top",
+    /** Colophon line: why this site exists. */
+    colophon:
+      "I built this site in 2025 while looking for a summer internship, a thesis project, and my first full-time role.",
   },
 
   aboutPage: {

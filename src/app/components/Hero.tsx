@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { 
+  ArrowRight,
   Code2, 
   Palette
 } from "lucide-react";
@@ -78,17 +79,40 @@ export default function Hero() {
           </div>
 
           {/* Current role */}
-          <div className={`relative -top-3 sm:-top-5 self-center inline-flex items-center gap-2.5 sm:gap-3 rounded-full py-2 pl-2.5 pr-4 sm:py-2.5 sm:pr-5 text-foreground backdrop-blur-xl mb-4 ${
+          <div className={`group relative -top-3 sm:-top-5 self-center inline-flex items-center gap-2.5 sm:gap-3 rounded-full py-2 px-2.5 sm:py-2.5 sm:px-3 text-foreground backdrop-blur-xl mb-4 transition-shadow duration-500 ${
             isDark
               ? 'border-0 bg-gray-950/45 shadow-[0_12px_32px_-24px_rgba(0,0,0,0.9)] ring-0 outline-none'
-              : 'border border-black/[0.06] bg-white/60 shadow-[0_12px_32px_-24px_rgba(99,102,241,0.55)]'
+              : 'border border-black/[0.06] bg-white/60 shadow-[0_12px_32px_-24px_rgba(99,102,241,0.55)] hover:shadow-[0_16px_40px_-22px_rgba(99,102,241,0.7)]'
           }`}>
             <span className="grid size-8 sm:size-9 place-items-center">
-              <AngularIcon className="size-6 sm:size-7" />
+              <AngularIcon className="size-6 sm:size-7 transition-transform duration-500 ease-out group-hover:scale-110" />
             </span>
-            <span className="text-sm sm:text-base md:text-lg font-semibold tracking-tight text-foreground/85">
+            <span className="inline-flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base md:text-lg font-semibold tracking-tight">
               <span className="sr-only">{t.hero.roleScreenReader} </span>
-              {t.hero.role} <span className="px-0.5 text-foreground/40">@</span> {t.hero.company}
+              {/* opacity-*, not text-foreground/70: alpha modifiers are a no-op
+                  against the var(--foreground) colour. */}
+              <span className="opacity-70">{t.hero.role}</span>
+              <ArrowRight
+                className="size-4 sm:size-5 text-indigo-500/80 transition-transform duration-500 ease-out group-hover:translate-x-1"
+                aria-hidden="true"
+              />
+              <span className="sr-only">{` ${t.hero.at} `}</span>
+              {/* Lands on Biometria's own green, so the word resolves into the logo beside it. */}
+              <span className={`bg-gradient-to-r from-blue-500 bg-clip-text text-transparent ${
+                isDark ? 'to-[#4CAE4F]' : 'to-[#359637]'
+              }`}>
+                {t.hero.company}
+              </span>
+            </span>
+            <span className="grid size-8 sm:size-9 place-items-center">
+              <Image
+                src="/biometria_se_logo-transparent.png"
+                alt=""
+                aria-hidden="true"
+                width={36}
+                height={36}
+                className="size-6 sm:size-7 object-contain transition-transform duration-500 ease-out group-hover:scale-110"
+              />
             </span>
           </div>
 
