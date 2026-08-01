@@ -1,15 +1,18 @@
 "use client";
 
-import { Mail, Linkedin, ArrowUp, Map, Clock } from "lucide-react";
+import { Mail, ArrowUp, Map, Clock } from "lucide-react";
 import { gsap } from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { useState, useEffect } from 'react';
+import LinkedInIcon from "@components/LinkedInIcon";
+import { useI18n } from "@i18n/I18nProvider";
 
 // Register ScrollToPlugin
 gsap.registerPlugin(ScrollToPlugin);
 
 export default function Footer() {
   const [currentTime, setCurrentTime] = useState<string>('');
+  const { t } = useI18n();
 
   const getCurrentTime = () => {
     const now = new Date();
@@ -22,33 +25,21 @@ export default function Footer() {
   };
 
   useEffect(() => {
-    // Set initial time
-    setCurrentTime(getCurrentTime());
-
-    // Calculate delay until next minute
-    const now = new Date();
-    const secondsUntilNextMinute = 60 - now.getSeconds();
-    const millisecondsUntilNextMinute = secondsUntilNextMinute * 1000 - now.getMilliseconds();
-
-    // Initial timeout to sync with minute change
-    const initialTimeout = setTimeout(() => {
+    const initialUpdate = window.setTimeout(() => {
       setCurrentTime(getCurrentTime());
-      
-      // After initial sync, update every minute
-      const timer = setInterval(() => {
-        setCurrentTime(getCurrentTime());
-      }, 60000);
+    }, 0);
+    const timer = window.setInterval(() => {
+      setCurrentTime(getCurrentTime());
+    }, 60000);
 
-      // Cleanup interval on component unmount or when effect is re-run
-      return () => clearInterval(timer);
-    }, millisecondsUntilNextMinute);
-
-    // Cleanup initial timeout if component unmounts before it fires
-    return () => clearTimeout(initialTimeout);
+    return () => {
+      window.clearTimeout(initialUpdate);
+      window.clearInterval(timer);
+    };
   }, []);
 
   const techStack = [
-    "Next.js 15",
+    "Next.js 16",
     "React",
     "TypeScript",
     "Tailwind CSS",
@@ -64,7 +55,7 @@ export default function Footer() {
       isExternal: false
     },
     {
-      icon: Linkedin,
+      icon: LinkedInIcon,
       label: "Lukas Hedström",
       href: "https://linkedin.com/in/lukashedstrom",
       isExternal: true
@@ -110,17 +101,17 @@ export default function Footer() {
               <h3 className="text-2xl font-display font-bold">
                 Lukas Hedström
                 <span className="block text-sm text-gray-400 font-normal mt-1">
-                  [heːdˈstrøm] • Heath-Stream
+                  {t.footer.pronunciation}
                 </span>
               </h3>
               <div className="flex flex-col gap-2 text-gray-400">
                 <div className="flex items-center gap-2">
                   <Map className="w-4 h-4" />
-                  <span>Umeå, Sweden</span>
+                  <span>{t.footer.location}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
-                  <span>Local time: {currentTime}</span>
+                  <span>{t.footer.localTime} {currentTime}</span>
                 </div>
               </div>
             </div>
@@ -129,7 +120,7 @@ export default function Footer() {
           {/* Technologies Used */}
           <div className="space-y-4">
             <h4 className="text-lg font-semibold">
-              Built With
+              {t.footer.builtWith}
             </h4>
             <div className="flex flex-wrap gap-2">
               {techStack.map((tech) => (
@@ -146,7 +137,7 @@ export default function Footer() {
           {/* Connect */}
           <div className="space-y-4">
             <h4 className="text-lg font-semibold">
-              Connect
+              {t.footer.connect}
             </h4>
             <div className="flex flex-col gap-3">
               {socialLinks.map((link) => (
@@ -175,7 +166,7 @@ export default function Footer() {
         py-2 px-4 flex items-center justify-center gap-2 text-gray-300 
         hover:text-white transition-colors group max-sm:hidden"
       >
-        <span className="text-sm">Back to Top</span>
+        <span className="text-sm">{t.footer.backToTop}</span>
         <ArrowUp className="w-4 h-4" />
       </button>
 
@@ -186,7 +177,7 @@ export default function Footer() {
         w-10 h-10 rounded-full bg-gray-800/80 backdrop-blur-sm text-gray-300 
         hover:text-white shadow-lg transition-all
         hover:bg-gray-700/80 active:scale-95"
-        aria-label="Back to top"
+        aria-label={t.footer.backToTop}
       >
         <ArrowUp className="w-5 h-5" />
       </button>

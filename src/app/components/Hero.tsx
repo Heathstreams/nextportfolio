@@ -7,14 +7,17 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
+import { useMounted } from '@utils/useMounted';
+import AngularIcon from '@components/AngularIcon';
+import { useI18n } from '@i18n/I18nProvider';
 
 export default function Hero() {
   const [scrollY, setScrollY] = useState(0);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const { resolvedTheme } = useTheme();
+  const { t } = useI18n();
 
   useEffect(() => {
-    setMounted(true);
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
@@ -69,15 +72,25 @@ export default function Hero() {
           <div className="mb-4 sm:mb-6">
             <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold">
               <span className="bg-gradient-to-r from-emerald-500 via-blue-500 to-indigo-500 text-transparent bg-clip-text">
-                Designer & Developer
+                {t.hero.title}
               </span>
             </h1>
           </div>
 
-          {/* Description */}
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-foreground/70 max-w-3xl mx-auto leading-relaxed mb-6 sm:mb-8">
-            Focused on crafting engaging digital experiences through the perfect blend of design and technology.
-          </p>
+          {/* Current role */}
+          <div className={`relative -top-3 sm:-top-5 self-center inline-flex items-center gap-2.5 sm:gap-3 rounded-full py-2 pl-2.5 pr-4 sm:py-2.5 sm:pr-5 text-foreground backdrop-blur-xl mb-4 ${
+            isDark
+              ? 'border-0 bg-gray-950/45 shadow-[0_12px_32px_-24px_rgba(0,0,0,0.9)] ring-0 outline-none'
+              : 'border border-black/[0.06] bg-white/60 shadow-[0_12px_32px_-24px_rgba(99,102,241,0.55)]'
+          }`}>
+            <span className="grid size-8 sm:size-9 place-items-center">
+              <AngularIcon className="size-6 sm:size-7" />
+            </span>
+            <span className="text-sm sm:text-base md:text-lg font-semibold tracking-tight text-foreground/85">
+              <span className="sr-only">{t.hero.roleScreenReader} </span>
+              {t.hero.role} <span className="px-0.5 text-foreground/40">@</span> {t.hero.company}
+            </span>
+          </div>
 
           {/* Image Section */}
           <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-64 lg:h-64 mx-auto mb-6 sm:mb-8">
@@ -88,8 +101,8 @@ export default function Hero() {
               }} 
             />
             <Image
-              src="/Intersect.png"
-              alt="Lukas - Creative Developer"
+              src="/Profilbild-corrected.png"
+              alt={t.hero.portraitAlt}
               width={256}
               height={256}
               className="rounded-full object-cover w-full h-full relative z-10"

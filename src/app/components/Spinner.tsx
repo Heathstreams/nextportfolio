@@ -1,26 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useTheme } from "next-themes";
+import { useMounted } from "@utils/useMounted";
+import { useI18n } from "@i18n/I18nProvider";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Spinner() {
-  const spinnerRef = useRef<HTMLDivElement>(null);
+  const spinnerRef = useRef<HTMLButtonElement>(null);
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
+  const { t } = useI18n();
 
   useEffect(() => {
-    setMounted(true);
-
     // Ensure GSAP and ScrollTrigger are loaded
     if (typeof window !== 'undefined') {
       const spinnerElement = spinnerRef.current;
 
       if (spinnerElement) {
-        const rotationAnimation = gsap.to(spinnerElement, {
+        gsap.to(spinnerElement, {
           rotation: -360,
           ease: "none",
           duration: 1,
@@ -31,26 +32,25 @@ export default function Spinner() {
             scrub: 1, // Smooth scrubbing
           }
         });
-
-        // Optional: Log to verify animation is created
-        console.log('Rotation Animation Created', rotationAnimation);
       }
     }
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    console.log('Theme toggled:', newTheme);
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   if (!mounted) return null;
 
   return (
-    <div
+    <button
+      type="button"
       ref={spinnerRef}
       onClick={toggleTheme}
-      className="fixed bottom-7 left-5 sm:top-auto sm:bottom-5 z-50 mix-blend-difference cursor-pointer"
+      aria-label={t.common.toggleTheme}
+      title={t.common.toggleTheme}
+      className="fixed bottom-7 left-5 sm:top-auto sm:bottom-5 z-50 mix-blend-difference cursor-pointer
+        [-webkit-tap-highlight-color:transparent]"
     >
       <svg
         className="w-10 h-10 text-white"
@@ -58,6 +58,7 @@ export default function Spinner() {
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
+        aria-hidden="true"
       >
         {theme !== 'light' ? (
           <>
@@ -75,6 +76,6 @@ export default function Spinner() {
           <path transform="translate(2.4,2.4) scale(0.8)" d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
         )}
       </svg>
-    </div>
+    </button>
   );
 }

@@ -5,22 +5,68 @@ import { useTheme } from 'next-themes';
 import { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollToPlugin from 'gsap/ScrollToPlugin';
-import { ExternalLink, X } from 'lucide-react';
+import { Construction, ExternalLink, X } from 'lucide-react';
+import { useMounted } from '@utils/useMounted';
+import { useViewportWidth } from '@utils/useViewportWidth';
+import { useI18n } from '@i18n/I18nProvider';
+import type { Dictionary } from '@i18n/dictionaries/en';
 
-// Define project type for type-safety
-interface Project {
+type ProjectKey = keyof Dictionary['projects']['items'];
+
+/** Language-neutral project data. Copy comes from the dictionaries. */
+interface ProjectMeta {
   id: number;
-  title: string;
+  key: ProjectKey;
   src: string;
-  description: string;
-  fullDescription: string;
   technologies: string[];
-  features: string[];
+  /** Placeholders have no shippable demo yet. */
+  wip?: boolean;
   links: {
-    demo: string;
-    github: string;
+    demo: string | null;
+    github: string | null;
   };
 }
+
+type Project = ProjectMeta & Dictionary['projects']['items'][ProjectKey];
+
+const projectMeta: ProjectMeta[] = [
+  {
+    id: 1,
+    key: 'pokedle',
+    src: '/images/project1v3.png',
+    technologies: ['Next.js', 'TypeScript', 'PostgreSQL', 'CSS', 'Neon DB'],
+    links: {
+      demo: 'https://pokedle.day',
+      github: null,
+    },
+  },
+  {
+    id: 2,
+    key: 'placeholder2',
+    src: '/2.jpg',
+    technologies: ['Next.js', 'React', 'Stripe', 'Sanity CMS', 'Tailwind CSS'],
+    wip: true,
+    links: { demo: null, github: null },
+  },
+  {
+    id: 3,
+    key: 'placeholder3',
+    src: '/3.jpg',
+    technologies: ['React Native', 'Expo', 'Firebase', 'Redux', 'Styled Components'],
+    wip: true,
+    links: { demo: null, github: null },
+  },
+  {
+    id: 4,
+    key: 'halls',
+    src: '/images/project4.png',
+    technologies: ['Godot 4', 'Blender', 'Krita', 'Laigter', 'GDScript'],
+    links: {
+      demo: 'https://rezyn.itch.io/halls-of-despair',
+      github: null,
+    },
+  },
+];
 
 // For ScrollToPlugin support
 if (typeof window !== 'undefined') {
@@ -28,28 +74,29 @@ if (typeof window !== 'undefined') {
 }
 
 export default function CaseStudies() {
-  const [mounted, setMounted] = useState<boolean>(false);
+  const mounted = useMounted();
   const { resolvedTheme } = useTheme();
   const [selectedProject, setSelectedProject] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
-  const [windowWidth, setWindowWidth] = useState<number>(0);
+  const windowWidth = useViewportWidth();
+  const isDesktop = windowWidth >= 1024;
+  const { t } = useI18n();
   
-  // Use direct element references instead of React refs
-  const projectElements: (HTMLDivElement | null)[] = [];
+  const projectElements = useRef<(HTMLDivElement | null)[]>([]);
   const setProjectRef = (index: number, element: HTMLDivElement | null) => {
-    projectElements[index] = element;
+    projectElements.current[index] = element;
   };
 
   // Define handleCloseExpanded at the top level
   const handleCloseExpanded = () => {
     if (selectedProject === null || !overlayRef.current || !gridRef.current) return;
 
-    const index = projects.findIndex(p => p.id === selectedProject);
+    const index = [1, 2, 3, 4].indexOf(selectedProject);
     if (index === -1) return;
 
-    const card = projectElements[index];
+    const card = projectElements.current[index];
     if (!card) return;
 
     if (isDesktop) {
@@ -91,7 +138,7 @@ export default function CaseStudies() {
     }
 
     // Restore opacity of ALL cards
-    projectElements.forEach(element => {
+    projectElements.current.forEach(element => {
       if (element) {
         gsap.to(element, { opacity: 1, duration: 0.3 });
       }
@@ -99,16 +146,6 @@ export default function CaseStudies() {
   };
 
   useEffect(() => {
-    setMounted(true);
-
-    // Get initial window width
-    setWindowWidth(window.innerWidth);
-
-    // Add resize listener
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
     // Add global click handler
     const handleGlobalClick = (e: MouseEvent) => {
       if (selectedProject !== null && overlayRef.current && !overlayRef.current.contains(e.target as Node)) {
@@ -116,103 +153,20 @@ export default function CaseStudies() {
       }
     };
 
-    window.addEventListener('resize', handleResize);
     document.addEventListener('click', handleGlobalClick);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
       document.removeEventListener('click', handleGlobalClick);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProject]);
 
-  const projects: Project[] = [
-    { 
-      id: 1, 
-      title: "Pokedle.day", 
-      src: "/images/project1v3.png",
-      description: "Daily Pokémon guessing game",
-      fullDescription: "A daily Pokémon guessing game inspired by Wordle, built with Next.js 15 and TypeScript. Features include a comprehensive comparison system for multiple Pokémon attributes, progressive hint system, autocomplete search, and streak tracking with game statistics.",
-      technologies: ["Next.js", "TypeScript", "PostgreSQL", "CSS", "Neon DB"],
-      features: [
-        "Daily Pokémon guessing game with Wordle-inspired mechanics",
-        "Comprehensive comparison system for multiple Pokémon attributes",
-        "Progressive hint system unlocking at 10 and 15 guesses",
-        "Autocomplete search with filtered suggestions",
-        "Daily shiny Pokémon feature using seeded randomization",
-        "Mobile-responsive design with accessibility features"
-      ],
-      links: {
-        demo: "https://pokedle.day",
-        github: "https://github.com/username/pokedle"
-      }
-    },
-    { 
-      id: 2, 
-      title: "Project 2", 
-      src: "/2.jpg",
-      description: "E-commerce platform",
-      fullDescription: "A fully-featured e-commerce platform with product catalog, shopping cart, secure checkout, and user accounts. Integrated with Stripe for payments and a headless CMS for content management.",
-      technologies: ["Next.js", "React", "Stripe", "Sanity CMS", "Tailwind CSS"],
-      features: [
-        "Product catalog with advanced filtering",
-        "Shopping cart with persistent storage",
-        "Secure checkout with Stripe integration",
-        "User accounts and order history",
-        "Content management with Sanity CMS",
-        "Responsive design for all devices"
-      ],
-      links: {
-        demo: "https://project2.example.com",
-        github: "https://github.com/username/project2"
-      }
-    },
-    { 
-      id: 3, 
-      title: "Project 3", 
-      src: "/3.jpg",
-      description: "Mobile-first design",
-      fullDescription: "A mobile-first web application with responsive design that provides an optimal viewing experience across all devices. Features include offline support, push notifications, and app-like interactions.",
-      technologies: ["React Native", "Expo", "Firebase", "Redux", "Styled Components"],
-      features: [
-        "Cross-platform compatibility (iOS & Android)",
-        "Offline support with local data storage",
-        "Push notifications for user engagement",
-        "Smooth app-like transitions and animations",
-        "Responsive layouts for all screen sizes",
-        "Integration with Firebase backend services"
-      ],
-      links: {
-        demo: "https://project3.example.com",
-        github: "https://github.com/username/project3"
-      }
-    },
-    { 
-      id: 4, 
-      title: "Halls of Despair", 
-      src: "/images/project4.png",
-      description: "PS1-style horror game",
-      fullDescription: "A PS1/PSX-style survival horror game developed from scratch using Godot 4. All textures, models, and rigging were created in Blender, Krita, and Laigter. The game features AI pathfinding, third-person character control, low-poly aesthetics, and atmospheric lighting in a dungeon environment.",
-      technologies: ["Godot 4", "Blender", "Krita", "Laigter", "GDScript"],
-      features: [
-        "AI pathfinding and enemy navigation system",
-        "Custom 3D character model with rigging and animations",
-        "Low-poly PS1/PSX-inspired visual aesthetic",
-        "Dynamic lighting with custom torch effects",
-        "Horror-focused gameplay inspired by Slender",
-        "Fully custom dungeon environment creation"
-      ],
-      links: {
-        demo: "https://rezyn.itch.io/halls-of-despair",
-        github: "https://github.com/username/halls-of-despair"
-      }
-    },
-  ];
+  const projects: Project[] = projectMeta.map((meta) => ({
+    ...meta,
+    ...t.projects.items[meta.key],
+  }));
 
   const isDark = mounted && resolvedTheme === 'dark';
-
-  // Determine device type based on window width
-  const isDesktop = windowWidth >= 1024;
 
   const handleProjectClick = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -229,7 +183,7 @@ export default function CaseStudies() {
     const index = projects.findIndex(p => p.id === id);
     if (index === -1) return;
 
-    const card = projectElements[index];
+    const card = projectElements.current[index];
     if (!card || !gridRef.current) return;
 
     // Get card position for overlay positioning
@@ -345,7 +299,7 @@ export default function CaseStudies() {
       }
 
       // Dim ALL cards to make the overlay stand out
-      projectElements.forEach(element => {
+      projectElements.current.forEach(element => {
         if (element) {
           gsap.to(element, { opacity: 0.2, duration: 0.15 });
         }
@@ -416,14 +370,32 @@ export default function CaseStudies() {
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   className={`object-cover 
-                    saturate-60 transition-all duration-1000 ease-in-out 
-                    group-hover:saturate-100
+                    transition-all duration-1000 ease-in-out 
                     lg:group-hover:-translate-y-8 
                     filter lg:group-hover:brightness-100 ${
+                      project.wip
+                        ? 'grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100'
+                        : 'saturate-60 group-hover:saturate-100'
+                    } ${
                       isDark ? 'brightness-75 hover:brightness-90' : ''
                     }`}
                   priority={index < 2}
                 />
+
+                {/* Placeholder / work-in-progress marker */}
+                {project.wip && (
+                  <>
+                    <div className="absolute inset-0 border-2 border-dashed border-amber-500/50 pointer-events-none" />
+                    <span
+                      className="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1
+                        bg-amber-500/90 text-black text-[0.7rem] sm:text-xs font-semibold uppercase tracking-wide
+                        backdrop-blur-sm"
+                    >
+                      <Construction className="w-3.5 h-3.5" aria-hidden="true" />
+                      {t.projects.wipBadge}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -444,7 +416,9 @@ export default function CaseStudies() {
                 <p className={`text-sm sm:text-base lg:text-lg font-fixelDisplay 
                   lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500 delay-300
                   opacity-100 ${
-                    isDark ? 'text-foreground/70' : 'text-gray-600'
+                    project.wip
+                      ? isDark ? 'text-amber-400' : 'text-amber-600'
+                      : isDark ? 'text-foreground/70' : 'text-gray-600'
                   }`}>
                   {project.description}
                 </p>
@@ -485,6 +459,13 @@ export default function CaseStudies() {
                               priority
                               className="object-cover object-center overlay-image"
                             />
+                            {project.wip && (
+                              <span className="absolute top-6 left-6 inline-flex items-center gap-2 px-3 py-1.5
+                                bg-amber-500 text-black text-xs font-semibold uppercase tracking-wide">
+                                <Construction className="w-4 h-4" aria-hidden="true" />
+                                {t.projects.wipBadge}
+                              </span>
+                            )}
                             <div className="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black/80 to-transparent">
                               <h1 className="text-4xl font-bold text-white mb-2">
                                 {project.title}
@@ -499,6 +480,12 @@ export default function CaseStudies() {
                       <div className="col-span-7 p-8 py-12 h-full overflow-hidden">
                         {/* Description */}
                         <div className="mb-12">
+                          {project.wip && (
+                            <p className="flex items-start gap-3 mb-6 px-4 py-3 border-l-4 border-amber-500 bg-amber-500/10 text-base text-amber-600">
+                              <Construction className="w-5 h-5 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                              {t.projects.wipNotice}
+                            </p>
+                          )}
                           <p className="text-lg leading-relaxed">
                             {project.fullDescription}
                           </p>
@@ -536,18 +523,30 @@ export default function CaseStudies() {
                         
                         {/* Action buttons - View Demo and Close buttons */}
                         <div className="flex gap-4">
-                          <a 
-                            href={project.links.demo}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`px-6 py-4 flex-1 text-center bg-${colors.primary} text-white`}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <span className="flex items-center justify-center gap-2">
-                              <ExternalLink className="w-4 h-4" />
-                              View Demo
+                          {project.links.demo ? (
+                            <a 
+                              href={project.links.demo}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`px-6 py-4 flex-1 text-center bg-${colors.primary} text-white`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <span className="flex items-center justify-center gap-2">
+                                <ExternalLink className="w-4 h-4" />
+                                {t.projects.viewDemo}
+                              </span>
+                            </a>
+                          ) : (
+                            <span
+                              className="px-6 py-4 flex-1 text-center border border-dashed border-amber-500/60 bg-amber-500/10 text-amber-600 cursor-not-allowed"
+                              aria-disabled="true"
+                            >
+                              <span className="flex items-center justify-center gap-2">
+                                <Construction className="w-4 h-4" />
+                                {t.projects.comingSoon}
+                              </span>
                             </span>
-                          </a>
+                          )}
                           <button 
                             className="px-6 py-4 flex-1 text-center border border-white/20 bg-white/5"
                             onClick={(e) => {
@@ -557,7 +556,7 @@ export default function CaseStudies() {
                           >
                             <span className="flex items-center justify-center gap-2">
                               <X className="w-4 h-4" />
-                              Close
+                              {t.projects.close}
                             </span>
                           </button>
                         </div>
@@ -584,6 +583,12 @@ export default function CaseStudies() {
                           {project.title}
                         </span>
                       </h2>
+                      {project.wip && (
+                        <p className="flex items-start gap-2 mb-4 px-3 py-2.5 border-l-4 border-amber-500 bg-amber-500/10 text-sm text-amber-600 text-left">
+                          <Construction className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                          {t.projects.wipNotice}
+                        </p>
+                      )}
                       <p className="text-sm text-foreground/60 mb-6">
                         {project.fullDescription}
                       </p>
@@ -629,25 +634,36 @@ export default function CaseStudies() {
 
                       {/* Links */}
                       <div className="flex flex-wrap gap-3 justify-center">
-                        <a 
-                          href={project.links.demo}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`px-4 py-3  text-base font-medium flex items-center justify-center gap-2 flex-1
-                            ${
-                              selectedProject === 1 
-                                ? 'bg-emerald-500 text-white' :
-                              selectedProject === 2 
-                                ? 'bg-blue-500 text-white' :
-                              selectedProject === 3 
-                                ? 'bg-indigo-500 text-white' :
-                              'bg-purple-500 text-white'
-                            }`}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          View Project
-                        </a>
+                        {project.links.demo ? (
+                          <a 
+                            href={project.links.demo}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`px-4 py-3  text-base font-medium flex items-center justify-center gap-2 flex-1
+                              ${
+                                selectedProject === 1 
+                                  ? 'bg-emerald-500 text-white' :
+                                selectedProject === 2 
+                                  ? 'bg-blue-500 text-white' :
+                                selectedProject === 3 
+                                  ? 'bg-indigo-500 text-white' :
+                                'bg-purple-500 text-white'
+                              }`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            {t.projects.viewProject}
+                          </a>
+                        ) : (
+                          <span
+                            className="px-4 py-3 text-base font-medium flex items-center justify-center gap-2 flex-1
+                              border border-dashed border-amber-500/60 bg-amber-500/10 text-amber-600 cursor-not-allowed"
+                            aria-disabled="true"
+                          >
+                            <Construction className="w-4 h-4" />
+                            {t.projects.comingSoon}
+                          </span>
+                        )}
                         <button 
                           className="px-4 py-3 text-base font-medium flex items-center justify-center gap-2 flex-1 border border-white/20 bg-white/5"
                           onClick={(e) => {
@@ -656,7 +672,7 @@ export default function CaseStudies() {
                           }}
                         >
                           <X className="w-4 h-4" />
-                          Close
+                          {t.projects.close}
                         </button>
                       </div>
                     </div>

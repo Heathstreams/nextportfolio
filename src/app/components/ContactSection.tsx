@@ -2,19 +2,18 @@
 
 import { 
   Mail, 
-  Linkedin, 
   Copy, 
   Download, 
   Eye, 
-  ExternalLink,
-  Sparkles,
-  GraduationCap,
-  Briefcase
+  ExternalLink
 } from "lucide-react";
 import { useState } from "react";
+import LinkedInIcon from "@components/LinkedInIcon";
+import { useI18n } from "@i18n/I18nProvider";
 
 export default function ContactSection() {
   const [emailCopied, setEmailCopied] = useState(false);
+  const { t } = useI18n();
 
   const handleEmailCopy = () => {
     navigator.clipboard.writeText('hello@lukashedstrom.com').then(() => {
@@ -30,27 +29,15 @@ export default function ContactSection() {
           <h2 className="text-3xl sm:text-5xl md:text-6xl font-display font-bold mb-4 sm:mb-6 relative">
             <span className="bg-gradient-to-r from-emerald-500 to-indigo-500 text-transparent bg-clip-text 
               relative z-10 drop-shadow-[0_2px_10px_rgba(99,102,241,0.2)]">
-              Let&apos;s Connect!
+              {t.contact.heading}
             </span>
           </h2>
           <p className="text-base sm:text-lg text-foreground/60 max-w-2xl mx-auto px-4">
-            Whether you have a project in mind or just want to chat about technology and design,
-            I&apos;m always excited to connect with like-minded individuals.
+            {t.contact.intro}
           </p>
-          <div className="mt-6 sm:mt-8 mb-8 sm:mb-12 flex flex-wrap gap-2 sm:gap-4 justify-center">
-            <span className="inline-flex items-center gap-2 px-3 rounded-full sm:px-4 py-1 sm:py-2 bg-emerald-500/10 text-emerald-500 text-xs sm:text-sm">
-              <Sparkles className="w-3 sm:w-4 h-3 sm:h-4" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
-              Summer Internship 2025
-            </span>
-            <span className="inline-flex items-center gap-2 px-3 rounded-full sm:px-4 py-1 sm:py-2 bg-blue-500/10 text-blue-500 text-xs sm:text-sm">
-              <GraduationCap className="w-3 sm:w-4 h-3 sm:h-4" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
-              Master Thesis Fall 2025
-            </span>
-            <span className="inline-flex items-center gap-2 px-3 rounded-full sm:px-4 py-1 sm:py-2 bg-indigo-500/10 text-indigo-500 text-xs sm:text-sm">
-              <Briefcase className="w-3 sm:w-4 h-3 sm:h-4" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
-              Full-time Position 2026
-            </span>
-          </div>
+          <p className="mt-6 sm:mt-8 mb-8 sm:mb-12 text-sm text-foreground/50 max-w-xl mx-auto px-4">
+            {t.contact.note}
+          </p>
         </div>
 
         <div className="space-y-6 sm:space-y-8">
@@ -60,8 +47,8 @@ export default function ContactSection() {
                 <Mail className="w-4 sm:w-6 h-4 sm:h-6 text-white" style={{ filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.4))' }} />
               </div>
               <div>
-                <h3 className="text-xl sm:text-2xl font-semibold mb-1 sm:mb-2">Email</h3>
-                <p className="text-xs sm:text-sm text-teal-500 font-medium">Direct communication</p>
+                <h3 className="text-xl sm:text-2xl font-semibold mb-1 sm:mb-2">{t.contact.email.title}</h3>
+                <p className="text-xs sm:text-sm text-teal-500 font-medium">{t.contact.email.subtitle}</p>
               </div>
             </div>
 
@@ -81,13 +68,13 @@ export default function ContactSection() {
                 <button
                   onClick={handleEmailCopy}
                   className="p-3 rounded-full  sm:p-4 bg-teal-500/10 hover:bg-teal-500/20 transition-colors text-left flex-1 sm:flex-initial"
-                  aria-label={emailCopied ? "Email copied!" : "Copy email"}
+                  aria-label={emailCopied ? t.contact.email.copiedAria : t.contact.email.copyAria}
                 >
                   <div className="flex items-center gap-2 sm:gap-3">
                     <Copy className={`w-4 sm:w-5 h-4 sm:h-5 ${emailCopied ? 'text-teal-600' : 'text-teal-500'}`} 
                           style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
                     <p className={`text-base sm:text-xl font-medium ${emailCopied ? 'text-teal-600' : 'text-teal-500'}`}>
-                      {emailCopied ? 'Copied!' : 'Copy'}
+                      {emailCopied ? t.contact.email.copied : t.contact.email.copy}
                     </p>
                   </div>
                 </button>
@@ -98,7 +85,7 @@ export default function ContactSection() {
                   <div className="flex items-center gap-2 sm:gap-3">
                     <ExternalLink className="w-4 sm:w-5 h-4 sm:h-5 text-teal-500" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
                     <p className="text-base sm:text-xl font-medium text-teal-500">
-                      Open
+                      {t.contact.email.open}
                     </p>
                   </div>
                 </a>
@@ -111,11 +98,11 @@ export default function ContactSection() {
               <div className="flex flex-col h-full">
                 <div className="flex items-start gap-4 sm:gap-6 mb-4 sm:mb-6">
                   <div className="flex-shrink-0 p-3 sm:p-4 bg-gradient-to-br from-blue-500 to-indigo-500">
-                    <Linkedin className="w-4 sm:w-6 h-4 sm:h-6 text-white" style={{ filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.4))' }} />
+                    <LinkedInIcon className="w-4 sm:w-6 h-4 sm:h-6 text-white" style={{ filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.4))' }} />
                   </div>
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-semibold mb-1 sm:mb-2">LinkedIn</h3>
-                    <p className="text-xs sm:text-sm text-blue-500 font-medium">Let&apos;s connect and grow together</p>
+                    <h3 className="text-xl sm:text-2xl font-semibold mb-1 sm:mb-2">{t.contact.linkedin.title}</h3>
+                    <p className="text-xs sm:text-sm text-blue-500 font-medium">{t.contact.linkedin.subtitle}</p>
                   </div>
                 </div>
                 <a
@@ -125,10 +112,10 @@ export default function ContactSection() {
                   className="p-3 sm:p-4 rounded-full  bg-blue-500/10 hover:bg-blue-500/20 transition-colors mb-2 w-full text-left"
                 >
                   <div className="flex  items-center gap-2 sm:gap-3">
-                    <Linkedin className="w-4 sm:w-5 h-4 sm:h-5 text-blue-500" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
+                    <LinkedInIcon className="w-4 sm:w-5 h-4 sm:h-5 text-blue-500" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                       <p className="text-base  sm:text-xl font-medium text-blue-500 flex items-center gap-1 sm:gap-2">
-                        Visit Profile
+                        {t.contact.linkedin.visit}
                         <ExternalLink className="w-3 sm:w-4 h-3 sm:h-4" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
                       </p>
                       <span className="text-xs sm:text-sm text-blue-400/70 font-light hidden sm:block">- Lukas Hedström</span>
@@ -145,8 +132,10 @@ export default function ContactSection() {
                     <Download className="w-4 sm:w-6 h-4 sm:h-6 text-white" style={{ filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.4))' }} />
                   </div>
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-semibold mb-1 sm:mb-2">Resume</h3>
-                    <p className="text-xs sm:text-sm text-indigo-500 font-medium">Download or preview my CV</p>
+                    <h3 className="text-xl sm:text-2xl font-semibold mb-1 sm:mb-2">
+                      {t.contact.resume.title} <span className="text-xs text-indigo-400/80 font-medium align-middle">{t.contact.resume.year}</span>
+                    </h3>
+                    <p className="text-xs sm:text-sm text-indigo-500 font-medium">{t.contact.resume.subtitle}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -158,7 +147,7 @@ export default function ContactSection() {
                     <div className="flex items-center gap-2 sm:gap-3">
                       <Download className="w-4  sm:w-5 h-4 sm:h-5 text-indigo-500" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
                       <p className="text-base sm:text-xl font-medium text-indigo-500">
-                        Download
+                        {t.contact.resume.download}
                       </p>
                     </div>
                   </a>
@@ -171,7 +160,7 @@ export default function ContactSection() {
                       <div className="flex items-center gap-2 sm:gap-3">
                         <Eye className="w-4 sm:w-5 h-4 sm:h-5 text-indigo-500" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />
                         <p className="text-base sm:text-xl font-medium text-indigo-500">
-                          Preview
+                          {t.contact.resume.preview}
                         </p>
                       </div>
                       <ExternalLink className="w-3 sm:w-4 h-3 sm:h-4 text-indigo-500" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.3))' }} />

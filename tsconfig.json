@@ -1,25 +1,42 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node", // Ensure Node module resolution is used
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "baseUrl": "./src", // Base directory for imports is 'src'
     "paths": {
-      "@app/*": ["app/*"], // Matches 'src/app/*'
-      "@assets/*": ["assets/*"], // Matches 'src/assets/*'
-      "@components/*": ["app/components/*"], // Matches 'src/app/components/*'
-      "@styles/*": ["styles/*"], // Matches 'src/styles/*'
-      "@utils/*": ["utils/*"] // Matches 'src/utils/*'
+      "@app/*": [
+        "app/*"
+      ], // Matches 'src/app/*'
+      "@assets/*": [
+        "assets/*"
+      ], // Matches 'src/assets/*'
+      "@components/*": [
+        "app/components/*"
+      ], // Matches 'src/app/components/*'
+      "@i18n/*": [
+        "i18n/*"
+      ], // Matches 'src/i18n/*'
+      "@styles/*": [
+        "styles/*"
+      ], // Matches 'src/styles/*'
+      "@utils/*": [
+        "utils/*"
+      ] // Matches 'src/utils/*'
     },
     "plugins": [
       {
@@ -31,7 +48,10 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -1,27 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Logo from "@components/Logo";
 import { User, Briefcase, Mail } from "lucide-react";
 import Spinner from "@components/Spinner";
-import { usePathname } from 'next/navigation';
+import LanguageToggle from "@components/LanguageToggle";
 import { useTheme } from 'next-themes';
+import { useMounted } from '@utils/useMounted';
+import { useI18n, useLocalePathname } from '@i18n/I18nProvider';
 
 export default function Navbar() {
-  const pathname = usePathname();
-  const [activeLink, setActiveLink] = useState("info");
+  const pathname = useLocalePathname();
+  const { t } = useI18n();
+  const [activeLink, setActiveLink] = useState<"info" | "work" | "contact">("info");
   const [shadowOpacity, setShadowOpacity] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const indicatorRef = useRef<HTMLDivElement>(null);
-  const infoRef = useRef<HTMLLIElement>(null);
-  const workRef = useRef<HTMLLIElement>(null);
-  const contactRef = useRef<HTMLLIElement>(null);
+  const mounted = useMounted();
   const { resolvedTheme } = useTheme();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const sections = useMemo(() => ({
     info: "about",
@@ -81,21 +76,7 @@ export default function Navbar() {
     };
   }, [isScrolling, sections, pathname]);
 
-  const getIndicatorPosition = () => {
-    const activeElement = {
-      info: infoRef.current,
-      work: workRef.current,
-      contact: contactRef.current,
-    }[activeLink];
-
-    if (activeElement) {
-      return {
-        width: activeElement.offsetWidth,
-        transform: `translateX(${activeElement.offsetLeft}px)`
-      };
-    }
-    return {};
-  };
+  const activeIndex = { info: 0, work: 1, contact: 2 }[activeLink];
 
   const isDark = mounted && resolvedTheme === 'dark';
 
@@ -116,10 +97,10 @@ export default function Navbar() {
         >
           <ul className="relative flex gap-5 font-fixelDisplay">
             <div
-              ref={indicatorRef}
               className="absolute top-0 left-0 rounded-full pointer-events-none transition-all duration-500"
               style={{
-                ...getIndicatorPosition(),
+                width: '3rem',
+                transform: `translateX(${activeIndex * 4.25}rem)`,
                 height: '100%',
                 background: isDark
                   ? "linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))"
@@ -137,7 +118,6 @@ export default function Navbar() {
             />
 
             <li
-              ref={infoRef}
               className="relative group transition-all duration-500"
             >
               <a
@@ -147,7 +127,8 @@ export default function Navbar() {
                   handleSmoothScroll(sections.info, "info");
                 }}
                 className="z-10 inline-flex items-center justify-center w-12 h-12 rounded-full transition-colors duration-300"
-                title="About"
+                title={t.nav.about}
+                aria-label={t.nav.about}
               >
                 <User 
                   className={`w-6 h-6 transition-colors duration-800 ${
@@ -164,7 +145,6 @@ export default function Navbar() {
             </li>
 
             <li
-              ref={workRef}
               className="relative group transition-all duration-500"
             >
               <a
@@ -174,7 +154,8 @@ export default function Navbar() {
                   handleSmoothScroll(sections.work, "work");
                 }}
                 className="z-10 inline-flex items-center justify-center w-12 h-12 rounded-full transition-colors duration-300"
-                title="Stack"
+                title={t.nav.projects}
+                aria-label={t.nav.projects}
               >
                 <Briefcase 
                   className={`w-6 h-6 transition-colors duration-800 ${
@@ -191,7 +172,6 @@ export default function Navbar() {
             </li>
 
             <li
-              ref={contactRef}
               className="relative group transition-all duration-500"
             >
               <a
@@ -201,7 +181,8 @@ export default function Navbar() {
                   handleSmoothScroll(sections.contact, "contact");
                 }}
                 className="z-10 inline-flex items-center justify-center w-12 h-12 rounded-full transition-colors duration-300"
-                title="Email"
+                title={t.nav.contact}
+                aria-label={t.nav.contact}
               >
                 <Mail 
                   className={`w-6 h-6 transition-colors duration-800 ${
@@ -219,6 +200,7 @@ export default function Navbar() {
           </ul>
         </nav>
       )}
+      <LanguageToggle />
       <Spinner />
     </>
   );

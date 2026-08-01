@@ -1,10 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  outputFileTracingRoot: process.cwd(),
   images: {
-    dangerouslyAllowSVG: true, // Enable SVG optimization
-    contentDispositionType: "inline", // Render SVGs in the browser instead of forcing download
-    formats: ["image/avif", "image/webp"], // Optional: Add modern image formats
+    formats: ["image/avif", "image/webp"],
   },
 };
 

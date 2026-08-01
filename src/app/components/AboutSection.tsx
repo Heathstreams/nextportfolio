@@ -5,14 +5,16 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Palette, Code2, Database, ArrowRight, LucideIcon } from "lucide-react";
 import Link from 'next/link';
+import { useI18n } from "@i18n/I18nProvider";
+import { highlight } from "@i18n/rich";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type Card = {
-  title: string;
-  subtitle: string;
+type CardKey = "ux" | "frontend" | "fullstack";
+
+type CardStyle = {
+  key: CardKey;
   icon: LucideIcon;
-  description: React.ReactElement;
   gradient: string;
   borderGradient: string;
   iconColor: string;
@@ -21,66 +23,48 @@ type Card = {
   featured?: boolean;
 };
 
+/** Presentation only — all copy lives in the dictionaries. */
+const cardStyles: CardStyle[] = [
+  {
+    key: "ux",
+    icon: Palette,
+    gradient: "from-emerald-500/20 to-emerald-500/5",
+    borderGradient: "from-emerald-500 via-emerald-400 to-transparent",
+    iconColor: "text-emerald-500",
+    borderColor: "border-emerald-500/20",
+    step: "01"
+  },
+  {
+    key: "frontend",
+    icon: Code2,
+    gradient: "from-blue-500/20 to-blue-500/5",
+    borderGradient: "from-blue-500 via-blue-400 to-transparent",
+    iconColor: "text-blue-500",
+    borderColor: "border-blue-500/20",
+    featured: true,
+    step: "02"
+  },
+  {
+    key: "fullstack",
+    icon: Database,
+    gradient: "from-indigo-500/20 to-indigo-500/5",
+    borderGradient: "from-indigo-500 via-indigo-400 to-transparent",
+    iconColor: "text-indigo-500",
+    borderColor: "border-indigo-500/20",
+    step: "03"
+  }
+];
+
 export default function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const buttonRef = useRef<HTMLDivElement>(null);
+  const { t, href } = useI18n();
 
-  const cards: Card[] = [
-    {
-      title: "UX Designer",
-      subtitle: "The Foundation",
-      icon: Palette,
-      description: (
-        <p className="relative">
-          UX is at the core of how I approach development. With a background in user-centered design, accessibility, and software like{" "}
-          <span className="text-emerald-500">Figma</span>, I focus on making digital experiences intuitive and functional. Understanding what makes design work helps me bridge the gap between users and technology.
-        </p>
-      ),
-      gradient: "from-emerald-500/20 to-emerald-500/5",
-      borderGradient: "from-emerald-500 via-emerald-400 to-transparent",
-      iconColor: "text-emerald-500",
-      borderColor: "border-emerald-500/20",
-      step: "01"
-    },
-    {
-      title: "Front-End Developer",
-      subtitle: "The Focus",
-      icon: Code2,
-      description: (
-        <p className="relative">
-          I enjoy working with modern web frameworks like{" "}
-          <span className="text-blue-500">React</span>,{" "}
-          <span className="text-blue-500">Next.js</span>, and{" "}
-          <span className="text-blue-500">React Native</span>, building intuitive and scalable interfaces. Front-End development is where design and logic meet, and I&apos;m particularly interested in performance optimization, accessibility, and creating seamless user experiences.
-        </p>
-      ),
-      gradient: "from-blue-500/20 to-blue-500/5",
-      borderGradient: "from-blue-500 via-blue-400 to-transparent",
-      iconColor: "text-blue-500",
-      borderColor: "border-blue-500/20",
-      featured: true,
-      step: "02"
-    },
-    {
-      title: "Full-Stack Journey",
-      subtitle: "The Goal",
-      icon: Database,
-      description: (
-        <p className="relative">
-          While Front-End is my main focus, I&apos;m interested in expanding my Full-Stack knowledge&mdash;especially when it comes to{" "}
-          <span className="text-indigo-500">APIs</span>,{" "}
-          <span className="text-indigo-500">databases</span>, and{" "}
-          performance-driven architectures. Learning more about the backend will help me build more holistic and efficient web applications.
-        </p>
-      ),
-      gradient: "from-indigo-500/20 to-indigo-500/5",
-      borderGradient: "from-indigo-500 via-indigo-400 to-transparent",
-      iconColor: "text-indigo-500",
-      borderColor: "border-indigo-500/20",
-      step: "03"
-    }
-  ];
+  const cards = cardStyles.map((style) => ({
+    ...style,
+    ...t.about.cards[style.key],
+  }));
 
   useEffect(() => {
     if (!sectionRef.current || !buttonRef.current) return;
@@ -150,12 +134,11 @@ export default function AboutSection() {
           <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
             <span className="bg-gradient-to-r from-emerald-500 to-indigo-500 text-transparent bg-clip-text 
               relative z-10 py-1 drop-shadow-[0_2px_10px_rgba(99,102,241,0.2)]">
-              Bridging Creativity & Technology
+              {t.about.heading}
             </span>
           </h2>
           <p className="text-xl font-serif text-foreground/60 max-w-3xl mx-auto">
-            I&apos;m currently finishing a Master of Science degree in Interaction Technology & Design.
-            I&apos;ve always been fascinated by the intersection of design and development, and here&apos;s how I bring both worlds together.
+            {t.about.intro}
           </p>
         </div>
 
@@ -163,7 +146,7 @@ export default function AboutSection() {
         <div className="max-w-7xl mx-auto grid gap-8 grid-cols-1 lg:grid-cols-3">
           {cards.map((card, i) => (
             <div
-              key={card.title}
+              key={card.key}
               ref={(el) => setCardRef(el, i)}
               className="relative group"
             >
@@ -217,7 +200,9 @@ export default function AboutSection() {
 
                   {/* Description */}
                   <div className="text-lg font-serif leading-relaxed text-foreground/80">
-                    {card.description}
+                    <p className="relative">
+                      {highlight(card.description, card.iconColor)}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -234,7 +219,7 @@ export default function AboutSection() {
         <div className="mt-16 text-center" ref={buttonRef}>
           <div className="inline-block">
             <Link
-              href="/about"
+              href={href("/about")}
               className="group relative inline-flex items-center gap-2 px-6 py-2.5 
                 text-xl font-fixelDisplay rounded-full
                 transition-all duration-300 overflow-hidden
@@ -253,7 +238,7 @@ export default function AboutSection() {
               {/* Content */}
               <span className="relative z-10 bg-gradient-to-r from-emerald-500 via-blue-500 to-indigo-500 text-transparent bg-clip-text 
                 font-medium">
-                View More
+                {t.about.cta}
               </span>
               <ArrowRight className="relative z-10 w-5 h-5 text-indigo-500 group-hover:translate-x-1 transition-transform duration-300" />
             </Link>

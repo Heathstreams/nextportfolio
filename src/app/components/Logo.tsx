@@ -5,17 +5,16 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { useTheme } from 'next-themes';
+import { useMounted } from '@utils/useMounted';
+import { useI18n } from '@i18n/I18nProvider';
 
 export default function Logo() {
   const logoRef = useRef<HTMLDivElement>(null);
   const brandingRef = useRef<HTMLDivElement>(null);
   const [shadowOpacity, setShadowOpacity] = useState(0);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const { resolvedTheme } = useTheme();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { href } = useI18n();
 
   useEffect(() => {
     const heroSection = document.querySelector("section");
@@ -122,7 +121,7 @@ export default function Logo() {
         className="fixed top-5 left-5 z-50 opacity-0 mix-blend-difference"
         style={{ visibility: "hidden", transform: "translateX(-50px)" }}
       >
-        <Link href="/">
+        <Link href={href("/")} aria-label="Lukas Hedström">
           <svg
             className="w-20 h-auto"
             viewBox="0 0 650 390"
